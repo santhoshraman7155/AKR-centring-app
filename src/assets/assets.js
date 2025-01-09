@@ -36,9 +36,9 @@ import General_physician from './General_physician.svg'
 import Gynecologist from './Gynecologist.svg'
 import Neurologist from './Neurologist.svg'
 import Pediatricians from './Pediatricians.svg'
-
+import akr_logo from './akr.jpeg'
 import msd from './dhoni.jpeg'
-const image = './akr.jpeg';
+
 
 
 export const assets = {
@@ -59,7 +59,7 @@ export const assets = {
     upload_icon,
     stripe_logo,
     razorpay_logo,
-    image ,
+    akr_logo ,
     msd 
 
 }
