@@ -1,0 +1,1 @@
+export const API_BASE_URL = 'https://application-backend-f48r.onrender.com/api/data';
