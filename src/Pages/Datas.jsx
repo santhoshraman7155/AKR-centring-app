@@ -167,8 +167,8 @@ const Datas = ({ setTotalAmount, setData, data }) => {
                             type="text" 
                             value={searchTerm} 
                             onChange={handleSearchChange} 
-                            className="w-full p-2 border border-gray-300 shadow-md rounded-md placeholder:text-slate-500"
-                            placeholder="Enter name or phone number"
+                            className="w-full p-2 border border-gray-300 shadow-md rounded-md placeholder:text-slate-500 outline-0 focus:ring  focus:ring-blue-300"
+                            placeholder="Enter name or phone number" 
                             disabled={loading}
                             aria-label="Search by name or phone number"
                         />
