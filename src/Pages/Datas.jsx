@@ -121,6 +121,24 @@ const Datas = ({ setTotalAmount, setData, data }) => {
         }
     };
 
+    // Highlight matching search term
+    const highlightSearchTerm = (text, searchTerm) => {
+        if (!searchTerm) return text;
+
+        const regex = new RegExp(`(${searchTerm})`, 'gi');
+        const parts = text.split(regex);
+
+        return parts.map((part, index) =>
+            regex.test(part) ? (
+                <span key={index} className="text-red-500 font-bold">
+                    {part}
+                </span>
+            ) : (
+                part
+            )
+        );
+    };
+
     // Utility function to format date
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -293,8 +311,12 @@ const Datas = ({ setTotalAmount, setData, data }) => {
                                             )}
                                             <td className="p-3 border  border-slate-500">{index + 1}</td>
                                             <td className="p-3 border border-slate-500">{formatDate(item.date)}</td>
-                                            <td className="p-3 border border-slate-500">{item.name}</td>
-                                            <td className="p-3 border border-slate-500">{item.phoneNo}</td>
+                                            <td className="p-3 border border-slate-500">
+                                                {highlightSearchTerm(item.name, searchTerm)}
+                                            </td>
+                                            <td className="p-3 border border-slate-500">
+                                                {highlightSearchTerm(item.phoneNo, searchTerm)}
+                                            </td>
                                             <td className="p-3 border border-slate-500">{item.product}</td>
                                             <td className="p-3 border border-slate-500">{item.paidAmount}</td>
                                             <td className="p-3 border border-slate-500">{item.paidStatus}</td>
