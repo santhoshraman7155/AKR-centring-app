@@ -9,14 +9,13 @@ import Spinner from './Spinner';
 const Datas = ({ setTotalAmount, setData, data }) => {
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [paidStatus, setPaidStatus] = useState('all'); // Default is 'all' to show all data
+    const [paidStatus, setPaidStatus] = useState('all');
     const [returnedFilter, setReturnedFilter] = useState('all');
     const [selectedIds, setSelectedIds] = useState(new Set());
     const [showCheckboxes, setShowCheckboxes] = useState(false);
     const [selectedMonth, setSelectedMonth] = useState('');
     const navigate = useNavigate();
 
-    // Fetch data
     const fetchData = async () => {
         setLoading(true);
         try {
@@ -34,7 +33,6 @@ const Datas = ({ setTotalAmount, setData, data }) => {
         fetchData();
     }, []);
 
-    // Handle input changes
     const handleSearchChange = (e) => setSearchTerm(e.target.value);
     const handlePaidStatusChange = (e) => setPaidStatus(e.target.value);
     const handleSelectMonth = (e) => setSelectedMonth(e.target.value);
@@ -44,7 +42,6 @@ const Datas = ({ setTotalAmount, setData, data }) => {
             const updatedSelectedIds = new Set(prev);
             updatedSelectedIds.has(id) ? updatedSelectedIds.delete(id) : updatedSelectedIds.add(id);
             
-            // Show checkboxes only if any items are selected
             setShowCheckboxes(updatedSelectedIds.size > 0);
             
             return updatedSelectedIds;
@@ -54,8 +51,6 @@ const Datas = ({ setTotalAmount, setData, data }) => {
     const handleSelectAllChange = (e) => {
         const newSelectedIds = e.target.checked ? new Set(data.map(item => item._id)) : new Set();
         setSelectedIds(newSelectedIds);
-        
-        // Show checkboxes only if any items are selected
         setShowCheckboxes(newSelectedIds.size > 0);
     };
 
@@ -63,10 +58,10 @@ const Datas = ({ setTotalAmount, setData, data }) => {
         if (selectedIds.size === 0) {
             const paidIds = new Set(data.filter(item => item.paidStatus.toLowerCase() === 'paid').map(item => item._id));
             setSelectedIds(paidIds);
-            setShowCheckboxes(true);  // Show checkboxes when selecting "paid"
+            setShowCheckboxes(true);
         } else {
             setSelectedIds(new Set());
-            setShowCheckboxes(false);  // Hide checkboxes when nothing is selected
+            setShowCheckboxes(false);
         }
     };
 
@@ -95,7 +90,7 @@ const Datas = ({ setTotalAmount, setData, data }) => {
                 toast.success('Selected entries for the month deleted successfully!');
                 fetchData();
                 setSelectedIds(new Set());
-                setShowCheckboxes(false);  // Hide checkboxes after deletion
+                setShowCheckboxes(false);
             } catch (error) {
                 console.error('Error deleting entries', error);
                 toast.error('Error deleting entries. Please try again.');
@@ -121,7 +116,6 @@ const Datas = ({ setTotalAmount, setData, data }) => {
         }
     };
 
-    // Highlight matching search term
     const highlightSearchTerm = (text, searchTerm) => {
         if (!searchTerm) return text;
 
@@ -139,16 +133,14 @@ const Datas = ({ setTotalAmount, setData, data }) => {
         );
     };
 
-    // Utility function to format date
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+        const month = String(date.getMonth() + 1).padStart(2, '0');
         const year = date.getFullYear();
-        return `${day}/${month}/${year}`; // Return formatted date
+        return `${day}/${month}/${year}`;
     };
 
-    // Filter data
     const filteredData = useMemo(() => {
         return data.filter((item) => {
             const matchesSearch = 
@@ -167,12 +159,47 @@ const Datas = ({ setTotalAmount, setData, data }) => {
         });
     }, [data, searchTerm, paidStatus, returnedFilter, selectedMonth]);
 
-    // Handle Edit Entry
     const handleEditEntry = (item) => {
-        navigate('/', { state: { item } }); // Pass the item to edit in state
+        navigate('/', { state: { item } });
     };
 
-    // Render component
+    const exportToCSV = () => {
+        const headers = [
+            'Date',
+            'Name',
+            'Phone Number',
+            'Products',
+            'Amount',
+            'Paid',
+            'Returned',
+            'Notes'
+        ];
+
+        const rows = filteredData.map(item => [
+            formatDate(item.date),           // Format the date
+            item.name,                       // Name
+            item.phoneNo,                    // Phone Number
+            item.product,                    // Products
+            item.paidAmount,                 // Amount
+            item.paidStatus,                 // Paid status
+            item.returned ? 'Yes' : 'No',    // Returned status
+            item.notes                       // Notes
+        ]);
+
+        let csvContent = 'data:text/csv;charset=utf-8,' + headers.join(',') + '\n';
+        rows.forEach(row => {
+            csvContent += row.join(',') + '\n';
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', 'table_data.csv');
+        document.body.appendChild(link); // Required for Firefox
+        link.click();
+        document.body.removeChild(link);
+    };
+
     return (
         <div className="p-4 space-y-4 bg-blue-400 rounded-xl">
             <ToastContainer />
@@ -185,10 +212,9 @@ const Datas = ({ setTotalAmount, setData, data }) => {
                             type="text" 
                             value={searchTerm} 
                             onChange={handleSearchChange} 
-                            className="w-full p-2 border border-gray-300 shadow-md rounded-md placeholder:text-slate-500 outline-0 focus:ring  focus:ring-blue-300"
+                            className="w-full p-2 border border-gray-300 shadow-md rounded-md placeholder:text-slate-500 outline-0 focus:ring focus:ring-blue-300"
                             placeholder="Enter name or phone number" 
                             disabled={loading}
-                            aria-label="Search by name or phone number"
                         />
                     </div>
 
@@ -244,7 +270,7 @@ const Datas = ({ setTotalAmount, setData, data }) => {
                     </div>
                 </div>
 
-                <div className="flex items-center space-x-4">
+                <div className="flex justify-between">
                     <button 
                         className="bg-green-500 text-white py-2 px-4 rounded-md disabled:bg-gray-300"
                         onClick={handleSelectPaid} 
@@ -262,6 +288,22 @@ const Datas = ({ setTotalAmount, setData, data }) => {
                             Delete
                         </button>
                     )}
+
+                    {/* Download Button */}
+                    <button 
+                        className=" bg-blue-500 text-white py-2 px-4 rounded-md disabled:bg-gray-300"
+                        onClick={exportToCSV}
+                        disabled={loading}
+                    >
+                        
+                        <div className='hidden md:block'> Download CSV</div>
+                        <div className='md:hidden '><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                          </svg>
+                        </div>
+        
+
+                    </button>
                 </div>
             </header>
 
@@ -270,7 +312,7 @@ const Datas = ({ setTotalAmount, setData, data }) => {
             ) : (
                 <section>
                     {filteredData.length > 0 ? (
-                        <div className="overflow-x-auto ">
+                        <div className="overflow-x-auto">
                             <table className="min-w-full table-auto bg-gray-200">
                                 <thead>
                                     <tr className="bg-gray-200">
@@ -309,7 +351,7 @@ const Datas = ({ setTotalAmount, setData, data }) => {
                                                     />
                                                 </td>
                                             )}
-                                            <td className="p-3 border  border-slate-500">{index + 1}</td>
+                                            <td className="p-3 border border-slate-500">{index + 1}</td>
                                             <td className="p-3 border border-slate-500">{formatDate(item.date)}</td>
                                             <td className="p-3 border border-slate-500">
                                                 {highlightSearchTerm(item.name, searchTerm)}
